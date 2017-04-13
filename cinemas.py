@@ -17,10 +17,6 @@ def parse_afisha_list(raw_html):
     return films_data
 
 
-    #for film in films:
-     #   res.append((film_title, cinemas_amount))
-    #print(res)
-
 def fetch_movie_info(movie_title):
     pass
 
