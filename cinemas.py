@@ -5,6 +5,7 @@ from random import choice
 
 USERAGENTS = 'user-agents.txt'
 PROXIES = 'proxies.txt'
+TOP_MOVIES_AMOUNT = 10
 
 
 def fetch_afisha_page(url='https://www.afisha.ru/spb/schedule_cinema/'):
@@ -25,9 +26,9 @@ def parse_afisha_list(raw_html):
 def get_movie_id(movie_title, year='2017', url='http://kparser.pp.ua/json/search/'):
     movies_page = requests.get(url+movie_title)
     movies_data = movies_page.json()
-    movie_info = filter(lambda movie: movie['title'] == movie_title and
-                        movie['year'] == year, movies_data['result'])
-    return list(movie_info)[0]['id']
+    movie_info = list(filter(lambda movie: movie['year'] == year, movies_data['result']))
+    movie_id = movie_info[0]['id']
+    return movie_id
 
 
 def get_movie_page(movie_id, url='https://www.kinopoisk.ru/film/'):
@@ -35,31 +36,44 @@ def get_movie_page(movie_id, url='https://www.kinopoisk.ru/film/'):
     proxies = open(PROXIES).read().split('\n')
     useragent = {'User-Agent': choice(useragents)}
     proxy = {'http': 'http://' + choice(proxies)}
-    return requests.get(url + movie_id, headers=useragent, proxies=proxy).text
+    return requests.get(url + movie_id, headers=useragent, proxies=proxy, timeout=10).text
 
 
-def fetch_movie_info(movie_page):
+def fetch_movie_data(movie_page):
     soup = BeautifulSoup(movie_page, 'lxml')
     movie_title = soup.find('h1', class_='moviename-big').text.strip()
     rating = soup.find('span', class_='rating_ball').text.strip()
     votes = soup.find('span', class_='ratingCount').text.strip()
     return {'title': movie_title,
-            'rating': rating,
-            'votes': votes}
+            'rating': float(rating),
+            'votes': int(votes.replace('\xa0', ''))}
 
 
-def get_movies_data():
+def collect_movies_data():
+    afisha_movies_list = parse_afisha_list(fetch_afisha_page())
+    movies = []
+    for movie in afisha_movies_list:
+        movie_id = get_movie_id(movie['title'])
+        movie_data = fetch_movie_data(get_movie_page(movie_id))
+        movie_data_with_cinemas = {**movie_data, **movie}
+        movies.append(movie_data_with_cinemas)
+    return movies
 
+
+def sort_movies(movies):
+    return sorted(movies,
+                  key=lambda movie: movie['rating'] and movie['cinemas_amount'],
+                  reverse=True)
 
 
 def output_movies_to_console(movies):
-    pass
+    sorted_movies = sort_movies(movies)[:TOP_MOVIES_AMOUNT]
+    print('10 best movies in cinemas right now:')
+    for movie in enumerate(sorted_movies, start=1):
+        print('{}. {} - rating is {} ({} votes).'
+              .format(movie[0], movie[1]['title'], movie[1]['rating'], movie[1]['votes']))
 
 
 if __name__ == '__main__':
-    #html = fetch_afisha_page()
-    #movies_list = parse_afisha_list(html)
-    #film_id = get_movie_id('Время первых')
-    #fetch_movie_info(film_id)
-    page = get_movie_page('53523')
-    fetch_movie_info(page)
+    movies = collect_movies_data()
+    output_movies_to_console(movies)
