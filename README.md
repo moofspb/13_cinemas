@@ -17,7 +17,7 @@ Install it using pip:
 
 `pip install -r requirements.txt`
 
-# Arguments:
+# Arguments
 
 `'-ma', '--movies amount'` - Movies amount that will be shown in rating.
  By default is equal 10.
