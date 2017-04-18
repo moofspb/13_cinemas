@@ -1,11 +1,19 @@
 import requests
 from bs4 import BeautifulSoup
 from random import choice
+import argparse
 
 
 USERAGENTS = 'proxies & user-agents/user-agents.txt'
 PROXIES = 'proxies & user-agents/proxies.txt'
-TOP_MOVIES_AMOUNT = 10
+
+
+def get_script_parameters():
+    parser = argparse.ArgumentParser(
+        description='The script shows rating of best movies in cinemas right now.')
+    parser.add_argument('-ma', '--movies amount', nargs='?', type=int, default=10,
+                        help='Movies amount that will be shown in rating')
+    return parser.parse_args()
 
 
 def fetch_afisha_page(url='https://www.afisha.ru/spb/schedule_cinema/'):
@@ -66,14 +74,16 @@ def sort_movies(movies):
                   reverse=True)
 
 
-def output_movies_to_console(movies):
-    sorted_movies = sort_movies(movies)[:TOP_MOVIES_AMOUNT]
-    print('10 best movies in cinemas right now:')
+def output_movies_to_console(movies, movies_amount):
+    sorted_movies = sort_movies(movies)[:movies_amount]
+    print('{} best movies in cinemas right now:'.format(movies_amount))
+    print('---------------')
     for movie in enumerate(sorted_movies, start=1):
         print('{}. {} - rating is {} ({} votes).'
               .format(movie[0], movie[1]['title'], movie[1]['rating'], movie[1]['votes']))
 
 
 if __name__ == '__main__':
+    top_movies_amount = get_script_parameters()
     movies = collect_movies_data()
-    output_movies_to_console(movies)
+    output_movies_to_console(movies, top_movies_amount)

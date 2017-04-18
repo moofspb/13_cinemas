@@ -1,10 +1,10 @@
 # Cinemas
 
-The script shows 10 best popular movies in cinemas right now.
+The script shows rating of best movies in cinemas right now.
 
 # Installation
 
-Run from console
+Run from console:
 
 `git clone https://github.com/moofspb/13_cinemas.git`
 
@@ -16,6 +16,11 @@ Python 3.5 is required. Also you need to install packages from
 Install it using pip:
 
 `pip install -r requirements.txt`
+
+# Arguments:
+
+`'-ma', '--movies amount'` - Movies amount that will be shown in rating.
+ By default is equal 10.
 
 # Usage
 
