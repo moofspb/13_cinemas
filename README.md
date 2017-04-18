@@ -21,4 +21,11 @@ Install it using pip:
 
 Run the script from a command line, for example:
 
-`python3 cinemas.py`
+```
+python3 cinemas.py
+
+10 best movies in cinemas right now:
+1. Время первых - rating is 7.766 (11224 votes).
+2. Форсаж-8 - rating is 6.667 (11261 votes).
+...
+```

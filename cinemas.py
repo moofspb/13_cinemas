@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 from random import choice
 
 
-USERAGENTS = 'user-agents.txt'
-PROXIES = 'proxies.txt'
+USERAGENTS = 'proxies & user-agents/user-agents.txt'
+PROXIES = 'proxies & user-agents/proxies.txt'
 TOP_MOVIES_AMOUNT = 10
 
 
