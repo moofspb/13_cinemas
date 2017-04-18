@@ -11,7 +11,7 @@ PROXIES = 'proxies & user-agents/proxies.txt'
 def get_script_parameters():
     parser = argparse.ArgumentParser(
         description='The script shows rating of best movies in cinemas right now.')
-    parser.add_argument('-ma', '--movies amount', nargs='?', type=int, default=10,
+    parser.add_argument('-ma', '--movies_amount', nargs='?', type=int, default=10,
                         help='Movies amount that will be shown in rating')
     return parser.parse_args()
 
@@ -31,20 +31,14 @@ def parse_afisha_list(raw_html):
     return movies_data
 
 
-def get_movie_id(movie_title, year='2017', url='http://kparser.pp.ua/json/search/'):
-    movies_page = requests.get(url+movie_title)
-    movies_data = movies_page.json()
-    movie_info = list(filter(lambda movie: movie['year'] == year, movies_data['result']))
-    movie_id = movie_info[0]['id']
-    return movie_id
-
-
-def get_movie_page(movie_id, url='https://www.kinopoisk.ru/film/'):
+def get_movie_page(movie_title, url='https://www.kinopoisk.ru/index.php'):
     useragents = open(USERAGENTS).read().split('\n')
     proxies = open(PROXIES).read().split('\n')
     useragent = {'User-Agent': choice(useragents)}
     proxy = {'http': 'http://' + choice(proxies)}
-    return requests.get(url + movie_id, headers=useragent, proxies=proxy, timeout=10).text
+    params = {'first': 'yes',
+              'kp_query': movie_title}
+    return requests.get(url, headers=useragent, proxies=proxy, params=params, timeout=8).text
 
 
 def fetch_movie_data(movie_page):
@@ -60,9 +54,8 @@ def fetch_movie_data(movie_page):
 def collect_movies_data():
     afisha_movies_list = parse_afisha_list(fetch_afisha_page())
     movies = []
-    for movie in afisha_movies_list:
-        movie_id = get_movie_id(movie['title'])
-        movie_data = fetch_movie_data(get_movie_page(movie_id))
+    for movie in afisha_movies_list[:2]:
+        movie_data = fetch_movie_data(get_movie_page(movie['title']))
         movie_data_with_cinemas = {**movie_data, **movie}
         movies.append(movie_data_with_cinemas)
     return movies
@@ -84,6 +77,6 @@ def output_movies_to_console(movies, movies_amount):
 
 
 if __name__ == '__main__':
-    top_movies_amount = get_script_parameters()
+    args = get_script_parameters()
     movies = collect_movies_data()
-    output_movies_to_console(movies, top_movies_amount)
+    output_movies_to_console(movies, args.movies_amount)
