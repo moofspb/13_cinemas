@@ -4,8 +4,8 @@ from random import choice
 import argparse
 
 
-USERAGENTS = 'proxies & user-agents/user-agents.txt'
-PROXIES = 'proxies & user-agents/proxies.txt'
+USERAGENTS = 'proxies_and_user-agents/user-agents.txt'
+PROXIES = 'proxies_and_user-agents/proxies.txt'
 
 
 def get_script_parameters():
